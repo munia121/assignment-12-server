@@ -33,6 +33,7 @@ async function run() {
     const upazilaCollection = client.db('Diagnostic').collection('upazila')
     const usersCollection = client.db('Diagnostic').collection('users')
     const bannerCollection = client.db('Diagnostic').collection('banner')
+    const personalizedCollection = client.db('Diagnostic').collection('personalized')
 
 
 
@@ -129,6 +130,14 @@ async function run() {
       const result = await bannerCollection.find().toArray()
       res.send(result)
     })
+
+    
+    app.get('/personalized', async(req, res) =>{
+      const result = await personalizedCollection.find().toArray()
+      res.send(result)
+    })
+
+
 
     
 
