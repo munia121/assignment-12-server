@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 require('dotenv').config()
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb')
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 
 
 const port = process.env.PORT || 5000
@@ -27,14 +27,113 @@ const client = new MongoClient(uri, {
 })
 
 async function run() {
-  try { 
+  try {
     // auth related app
+    const districtCollection = client.db('Diagnostic').collection('district')
+    const upazilaCollection = client.db('Diagnostic').collection('upazila')
+    const usersCollection = client.db('Diagnostic').collection('users')
+    const bannerCollection = client.db('Diagnostic').collection('banner')
 
 
 
+    app.get('/district', async (req, res) => {
+      const result = await districtCollection.find().toArray()
+      res.send(result)
+    })
+    app.get('/upazila', async (req, res) => {
+      const result = await upazilaCollection.find().toArray()
+      res.send(result)
+    })
 
+    // users create
+    app.post('/users', async (req, res) => {
+      const userData = req.body
+      const result = await usersCollection.insertOne(userData)
+      res.send(result)
+    })
+
+
+
+    app.get('/users', async (req, res) => {
+      const result = await usersCollection.find().toArray()
+      res.send(result)
+    })
+
+    app.get('/banner', async (req, res) => {
+      const result = await bannerCollection.find().toArray()
+      res.send(result)
+    })
+
+
+    // admin
+
+
+
+    app.get('/admin/:email', async (req, res) => {
+      const email = req.params.email;
+
+      // if (email !== req.decoded.email) {
+      //   return res.status(403).send({ message: 'forbidden access' })
+      // }
+
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      console.log(user)
+      let admin = false;
+      if (user) {
+        console.log('called')
+        admin = user?.role == 'admin';
+      }
+      // console.log(admin)
+      res.send({ admin })
+
+    })
+
+
+    app.patch('/users/admin/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          role: 'admin'
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc)
+      res.send(result)
+
+    })
+
+
+    app.post('/addBanner', async (req, res) => {
+      const bannerData = req.body
+      const result = await bannerCollection.insertOne(bannerData)
+      res.send(result)
+    })
+
+
+    app.patch('/banners/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          isActive: req.body.isActive
+        }
+      }
+      console.log(updateDoc)
+      const result = await bannerCollection.updateOne(filter, updateDoc)
+      res.send(result)
+
+    })
+
+    app.get('/bannerDisplay', async(req, res) =>{
+      const result = await bannerCollection.find().toArray()
+      res.send(result)
+    })
 
     
+
+
+
     // Send a ping to confirm a successful connection
     // await client.db('admin').command({ ping: 1 })
     console.log(
