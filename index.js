@@ -127,24 +127,34 @@ async function run() {
 
     })
 
-    app.get('/bannerDisplay', async(req, res) =>{
+    app.get('/bannerDisplay', async (req, res) => {
       const result = await bannerCollection.find().toArray()
       res.send(result)
     })
 
-    
-    app.get('/personalized', async(req, res) =>{
+
+    app.get('/personalized', async (req, res) => {
       const result = await personalizedCollection.find().toArray()
       res.send(result)
     })
 
 
-    app.get('/all-test', async(req, res) =>{
+    app.get('/all-tests', async (req, res) => {
       const result = await testCollection.find().toArray()
       res.send(result)
     })
 
 
+    app.get('/all-test', async (req, res) => {
+      const filter = req.query;
+      console.log('filter', filter)
+      const query = {
+        date: { $regex: filter.search, $options: 'i' }
+      };
+      console.log(query)
+      const result = await testCollection.find(query).toArray()
+      res.send(result)
+    })
 
     app.post('/allTest', async (req, res) => {
       const testData = req.body
@@ -152,7 +162,44 @@ async function run() {
       res.send(result)
     })
 
-    
+    app.delete('/all-test/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await testCollection.deleteOne(query)
+      res.send(result)
+    })
+
+
+    app.put('/all-tests/:id', async (req, res) => {
+      const item = req.body
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: {
+          ...item
+        }
+      }
+      const result = await testCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
+
+
+    app.get('/details/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await testCollection.findOne(query)
+      res.send(result)
+    })
+
+
+
+
+
+
+
+
+
 
 
 
