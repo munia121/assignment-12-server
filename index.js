@@ -34,6 +34,7 @@ async function run() {
     const usersCollection = client.db('Diagnostic').collection('users')
     const bannerCollection = client.db('Diagnostic').collection('banner')
     const personalizedCollection = client.db('Diagnostic').collection('personalized')
+    const testCollection = client.db('Diagnostic').collection('all-test')
 
 
 
@@ -138,6 +139,18 @@ async function run() {
     })
 
 
+    app.get('/all-test', async(req, res) =>{
+      const result = await testCollection.find().toArray()
+      res.send(result)
+    })
+
+
+
+    app.post('/allTest', async (req, res) => {
+      const testData = req.body
+      const result = await testCollection.insertOne(testData)
+      res.send(result)
+    })
 
     
 
