@@ -37,6 +37,7 @@ async function run() {
     const bannerCollection = client.db('Diagnostic').collection('banner')
     const personalizedCollection = client.db('Diagnostic').collection('personalized')
     const testCollection = client.db('Diagnostic').collection('all-test')
+    const paymentCollection = client.db('Diagnostic').collection('payment')
 
 
 
@@ -217,17 +218,29 @@ async function run() {
     app.post("/create-payment-intent", async (req, res) => {
       const { price } = req.body;
       const paymentIntent = await stripe.paymentIntents.create({
-          amount: parseInt(price) * 100,
-          currency: "usd",
-          payment_method_types: [
-              "card"
-          ],
-        });
-console.log(paymentIntent)
+        amount: parseInt(price) * 100,
+        currency: "usd",
+        payment_method_types: [
+          "card"
+        ],
+      });
+      console.log(paymentIntent)
       res.send({ clientSecret: paymentIntent.client_secret });
     });
 
+    app.post('/booked-payment', async (req, res) => {
+      const data = req.body
+      const result = await paymentCollection.insertOne(data)
+      res.send(result)
+    })
 
+
+    // user
+    app.get('/appoint/:email', async (req, res) => {
+      const email = req.params.email
+      const result = await paymentCollection.findOne({ email })
+      res.send(result)
+    })
 
 
 
