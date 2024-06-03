@@ -64,6 +64,33 @@ async function run() {
       res.send(result)
     })
 
+
+
+    app.put('/users/:email', async (req, res) => {
+      const item = req.body
+      const email = req.params.email
+      console.log('item',item)
+      // const filter = { _id: new ObjectId(id) }
+      const filter = {email: email}
+      console.log(filter)
+      const updateDoc = {
+        $set: {
+          ...item
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
+
+
+    app.get('/user/:email', async (req, res) => {
+      const email = req.params.email
+      const result = await usersCollection.findOne({ email })
+      res.send(result)
+    })
+
+
     app.get('/banner', async (req, res) => {
       const result = await bannerCollection.find().toArray()
       res.send(result)
@@ -228,22 +255,42 @@ async function run() {
       res.send({ clientSecret: paymentIntent.client_secret });
     });
 
+
+
+
     app.post('/booked-payment', async (req, res) => {
       const data = req.body
       const result = await paymentCollection.insertOne(data)
-      res.send(result)
+      res.send({ result, message: 'payment success' });
+      // res.send(result)
     })
+
+
+
 
 
     // user
     app.get('/appoint/:email', async (req, res) => {
       const email = req.params.email
-      const result = await paymentCollection.findOne({ email })
+      const result = await paymentCollection.find({ email }).toArray()
       res.send(result)
     })
 
+    app.delete('/appoints/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await paymentCollection.deleteOne(query)
+      res.send(result)
+    })
 
-
+    app.patch('/reduceQuantity/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await testCollection.updateOne(query, {
+        $inc: { slots: -1 }
+      })
+      res.send(result)
+    })
 
 
 
