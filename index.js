@@ -65,14 +65,26 @@ async function run() {
     })
 
 
+    app.patch('/user-status/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await usersCollection.updateOne(query, {
+        $set: {
+          status: 'Blocked'
+        }
+      })
+      res.send(result)
+    })
+
+
 
     app.put('/users/:email', async (req, res) => {
       const item = req.body
       const email = req.params.email
-      console.log('item',item)
+      console.log('item', item)
       // const filter = { _id: new ObjectId(id) }
-      const filter = {email: email}
-      console.log('filter',filter)
+      const filter = { email: email }
+      console.log('filter', filter)
       const updateDoc = {
         $set: {
           ...item
@@ -179,13 +191,13 @@ async function run() {
       const filter = req.query;
       // console.log('filter', filter)
       const today = new Date()
-      const date = { date:  { $gte: today } }
-      console.log('date',date)
+      const date = { date: { $gte: today } }
+      console.log('date', date)
       const query = {
         date: { $regex: filter.search, $options: 'i' },
       };
       // console.log(query)
-      const result = await testCollection.find(query ,date).toArray()
+      const result = await testCollection.find(query, date).toArray()
       res.send(result)
     })
 
@@ -199,7 +211,7 @@ async function run() {
 
 
 
-    
+
 
     app.delete('/all-test/:id', async (req, res) => {
       const id = req.params.id
@@ -231,10 +243,10 @@ async function run() {
 
 
     app.get('/test-features', async (req, res) => {
-      const result = await testCollection.find().sort({count: -1}).toArray()
-     
+      const result = await testCollection.find().sort({ count: -1 }).toArray()
+
       res.send(result)
-    }) 
+    })
 
 
 
@@ -288,8 +300,8 @@ async function run() {
     app.get('/appoint/:email', async (req, res) => {
       const email = req.params.email
       const today = new Date()
-      const date = { date:  { $gte: today } }
-      const query = {email:email}
+      const date = { date: { $gte: today } }
+      const query = { email: email }
       const result = await paymentCollection.find(query, date).toArray()
       res.send(result)
 
@@ -317,29 +329,41 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await testCollection.updateOne(query, {
-        $inc: { count: 1 } 
+        $inc: { count: 1 }
       })
       res.send(result)
     })
 
     app.get('/reservation', async (req, res) => {
-      const result = await paymentCollection.find().toArray()
+      const filter = req.query
+      const query = {
+        email: { $regex: filter.search, $options: 'i' },
+      };
+      const result = await paymentCollection.find(query).toArray()  
       res.send(result)
-    }) 
+    })
+
+
+
 
     app.patch('/update-status/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await paymentCollection.updateOne(query, {
-        $set:{
-          report:'Delivered'
+        $set: {
+          report: 'Delivered'
         }
       })
       res.send(result)
     })
 
+    app.delete('/reservation/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await paymentCollection.deleteOne(query)
+      res.send(result)
+    })
 
-    
 
 
 
