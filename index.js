@@ -113,7 +113,7 @@ async function run() {
       // console.log(user)
       let admin = false;
       if (user) {
-        console.log('called')
+        // console.log('called')
         admin = user?.role == 'admin';
       }
       // console.log(admin)
@@ -230,6 +230,12 @@ async function run() {
     })
 
 
+    app.get('/test-features', async (req, res) => {
+      const result = await testCollection.find().sort({count: -1}).toArray()
+     
+      res.send(result)
+    }) 
+
 
 
     app.get('/details/:id', async (req, res) => {
@@ -316,6 +322,24 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/reservation', async (req, res) => {
+      const result = await paymentCollection.find().toArray()
+      res.send(result)
+    }) 
+
+    app.patch('/update-status/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await paymentCollection.updateOne(query, {
+        $set:{
+          report:'Delivered'
+        }
+      })
+      res.send(result)
+    })
+
+
+    
 
 
 
