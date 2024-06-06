@@ -84,7 +84,7 @@ async function run() {
       console.log('item', item)
       // const filter = { _id: new ObjectId(id) }
       const filter = { email: email }
-      console.log('filter', filter)
+      // console.log('filter', filter)  
       const updateDoc = {
         $set: {
           ...item
@@ -361,6 +361,12 @@ async function run() {
       const id = req.params.id
       const query = { _id: new ObjectId(id) }
       const result = await paymentCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    app.get('/test-result/:email', async (req, res) => {
+      const email = req.params.email
+      const result = await paymentCollection.find({ email, report:"Delivered" }).toArray()
       res.send(result)
     })
 
