@@ -188,24 +188,37 @@ async function run() {
 
 
     app.get('/all-test', async (req, res) => {
+      const page = parseInt(req.query.page)
+      const size = parseInt(req.query.size)
+
+
       const filter = req.query;
-      // console.log('filter', filter)
+      // console.log('pagination', filter)
       const today = new Date()
       const date = { date: { $gte: today } }
-      console.log('date', date)
+      // console.log('date', date)
       const query = {
         date: { $regex: filter.search, $options: 'i' },
       };
       // console.log(query)
-      const result = await testCollection.find(query, date).toArray()
+      const result = await testCollection.find(query, date)
+      .skip(page * size)
+      .limit(size)
+        .toArray()
       res.send(result)
+    })
+
+
+    app.get('/data-count', async(req, res) =>{   
+      const result = await testCollection.countDocuments()  
+      res.send({count: result})
     })
 
 
 
     app.post('/allTest', async (req, res) => {
       const testData = req.body
-      const result = await testCollection.insertOne(testData)
+      const result = await testCollection.insertOne(testData) 
       res.send(result)
     })
 
@@ -278,7 +291,7 @@ async function run() {
           "card"
         ],
       });
-      console.log(paymentIntent)
+      // console.log(paymentIntent)
       res.send({ clientSecret: paymentIntent.client_secret });
     });
 
@@ -339,8 +352,18 @@ async function run() {
       const query = {
         email: { $regex: filter.search, $options: 'i' },
       };
-      const result = await paymentCollection.find(query).toArray()  
+      const result = await paymentCollection.find(query).toArray()
       res.send(result)
+    })
+
+
+    app.get('/booked-data', async (req, res) => {
+      const deliveredQuery = { report: 'Delivered' }
+      const PendingQuery = { report: 'Pending' }
+      const delivered = await paymentCollection.countDocuments(deliveredQuery)
+      const pending = await paymentCollection.countDocuments(PendingQuery)
+
+      res.send([{ count: delivered }, { count: pending }])
     })
 
 
@@ -366,7 +389,12 @@ async function run() {
 
     app.get('/test-result/:email', async (req, res) => {
       const email = req.params.email
-      const result = await paymentCollection.find({ email, report:"Delivered" }).toArray()
+      const result = await paymentCollection.find({ email, report: "Delivered" }).toArray()
+      res.send(result)
+    })
+
+    app.get('/booked', async (req, res) => {
+      const result = await paymentCollection.find().toArray()
       res.send(result)
     })
 
